@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { db } from "@/lib/db";
+import { turso } from "@/lib/turso";
 import { requireAdmin } from "@/lib/auth";
 import { applicationSchema } from "@/types";
 
@@ -15,10 +15,8 @@ export async function PUT(
     const body = await request.json();
     const validatedData = applicationSchema.parse(body);
 
-    const application = await db.application.update({
-      where: { id: parseInt(id) },
-      data: validatedData,
-    });
+    await turso.updateApplication(parseInt(id), validatedData);
+    const application = await turso.getApplicationById(parseInt(id));
 
     return NextResponse.json(application);
   } catch (error) {
@@ -45,9 +43,7 @@ export async function DELETE(
 
     const { id } = await params;
 
-    await db.application.delete({
-      where: { id: parseInt(id) },
-    });
+    await turso.deleteApplication(parseInt(id));
 
     return NextResponse.json({ success: true });
   } catch (error) {

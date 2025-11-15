@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { db } from "@/lib/db";
+import { turso } from "@/lib/turso";
 import { requireAuth, requireAdmin } from "@/lib/auth";
 import { applicationSchema } from "@/types";
 
@@ -11,10 +11,7 @@ export async function GET(request: NextRequest) {
     const searchParams = request.nextUrl.searchParams;
     const category = searchParams.get("category");
 
-    const applications = await db.application.findMany({
-      where: category ? { category } : undefined,
-      orderBy: { createdAt: "desc" },
-    });
+    const applications = await turso.getApplications(category || undefined);
 
     return NextResponse.json(applications);
   } catch (error) {
@@ -34,12 +31,13 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const validatedData = applicationSchema.parse(body);
 
-    const application = await db.application.create({
-      data: {
-        ...validatedData,
-        createdBy: userId,
-      },
+    const applicationId = await turso.createApplication({
+      ...validatedData,
+      createdBy: userId,
     });
+
+    // Fetch the created application to return it
+    const application = await turso.getApplicationById(Number(applicationId));
 
     return NextResponse.json(application, { status: 201 });
   } catch (error) {

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { db } from "@/lib/db";
+import { turso } from "@/lib/turso";
 import { requireAdmin } from "@/lib/auth";
 import { categorySchema } from "@/types";
 
@@ -15,10 +15,8 @@ export async function PUT(
     const body = await request.json();
     const validatedData = categorySchema.parse(body);
 
-    const category = await db.category.update({
-      where: { id: parseInt(id) },
-      data: validatedData,
-    });
+    await turso.updateCategory(parseInt(id), validatedData);
+    const category = await turso.getCategoryById(parseInt(id));
 
     return NextResponse.json(category);
   } catch (error) {
@@ -45,9 +43,7 @@ export async function DELETE(
 
     const { id } = await params;
 
-    await db.category.delete({
-      where: { id: parseInt(id) },
-    });
+    await turso.deleteCategory(parseInt(id));
 
     return NextResponse.json({ success: true });
   } catch (error) {

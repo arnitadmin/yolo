@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { db } from "@/lib/db";
+import { turso } from "@/lib/turso";
 import { requireAuth, requireAdmin } from "@/lib/auth";
 import { categorySchema } from "@/types";
 
@@ -8,9 +8,7 @@ export async function GET() {
   try {
     await requireAuth();
 
-    const categories = await db.category.findMany({
-      orderBy: { name: "asc" },
-    });
+    const categories = await turso.getCategories();
 
     return NextResponse.json(categories);
   } catch (error) {
@@ -30,9 +28,8 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const validatedData = categorySchema.parse(body);
 
-    const category = await db.category.create({
-      data: validatedData,
-    });
+    const categoryId = await turso.createCategory(validatedData);
+    const category = await turso.getCategoryById(Number(categoryId));
 
     return NextResponse.json(category, { status: 201 });
   } catch (error) {
