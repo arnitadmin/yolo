@@ -98,7 +98,9 @@ export function MorphingDialogContainer({
 }
 
 interface MorphingDialogContentProps
-  extends React.HTMLAttributes<HTMLDivElement> {
+  extends Omit<React.HTMLAttributes<HTMLDivElement>, 
+    'onDrag' | 'onDragStart' | 'onDragEnd' | 
+    'onAnimationStart' | 'onAnimationEnd' | 'onAnimationIteration'> {
   children: React.ReactNode;
 }
 
@@ -168,7 +170,9 @@ export function MorphingDialogSubtitle({
 }
 
 interface MorphingDialogDescriptionProps
-  extends React.HTMLAttributes<HTMLDivElement> {
+  extends Omit<React.HTMLAttributes<HTMLDivElement>, 
+    'onDrag' | 'onDragStart' | 'onDragEnd' | 
+    'onAnimationStart' | 'onAnimationEnd' | 'onAnimationIteration'> {
   children: React.ReactNode;
   disableLayoutAnimation?: boolean;
   variants?: any;

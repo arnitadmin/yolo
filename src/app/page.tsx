@@ -110,8 +110,8 @@ export default function Home() {
       <Header />
 
       <main className="container pb-32 pt-8">
-        <div className="mb-8 flex flex-col items-center gap-4">
-          <div className="relative w-full max-w-xl">
+        <div className="mb-8 flex items-center justify-center gap-4">
+          <div className="relative w-full max-w-md">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
               type="text"
@@ -123,7 +123,7 @@ export default function Home() {
           </div>
           
           {categories.length > 0 && (
-            <div className="flex flex-wrap items-center justify-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
               <Button
                 variant={selectedCategory === null ? "default" : "outline"}
                 size="sm"
@@ -151,7 +151,7 @@ export default function Home() {
         </div>
 
         {loading ? (
-          <div className="flex items-center justify-center py-20">
+          <div className="flex min-h-[60vh] items-center justify-center">
             <LoadRipple />
           </div>
         ) : filteredApplications.length === 0 ? (

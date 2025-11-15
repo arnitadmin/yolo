@@ -102,22 +102,10 @@ export function AppCard({ application }: AppCardProps) {
                 </button>
               </div>
 
-              {application.description && (
-                <p className="line-clamp-2 text-sm text-muted-foreground">
-                  {application.description}
-                </p>
-              )}
-
-              <div className="mt-auto space-y-2">
+              <div className="mt-auto">
                 <p className="text-xs font-mono text-muted-foreground truncate">
                   {application.primaryUrl}
                 </p>
-
-                {application.secondaryUrl && (
-                  <p className="text-xs text-muted-foreground">
-                    Alt: {application.secondaryUrl}
-                  </p>
-                )}
               </div>
             </div>
           </Card>
@@ -141,6 +129,19 @@ export function AppCard({ application }: AppCardProps) {
             )}
           </div>
           <div className="px-6 pb-6">
+            {tags.length > 0 && (
+              <div className="mb-3 flex flex-wrap gap-2">
+                {tags.map((tag, index) => (
+                  <span
+                    key={index}
+                    className="rounded-full bg-secondary px-3 py-1 text-xs text-secondary-foreground"
+                  >
+                    {tag}
+                  </span>
+                ))}
+              </div>
+            )}
+            
             <MorphingDialogTitle className="text-2xl text-foreground">
               {application.name}
             </MorphingDialogTitle>
@@ -158,61 +159,60 @@ export function AppCard({ application }: AppCardProps) {
               }}
             >
               {application.description && (
-                <p className="mt-2 text-muted-foreground">
+                <p className="mt-2 text-muted-foreground/70">
                   {application.description}
                 </p>
               )}
-              
-              {tags.length > 0 && (
-                <div className="mt-4 flex flex-wrap gap-2">
-                  {tags.map((tag, index) => (
-                    <span
-                      key={index}
-                      className="rounded-full bg-secondary px-3 py-1 text-xs text-secondary-foreground"
-                    >
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-              )}
 
-              <div className="mt-6 space-y-3">
-                <div className="flex gap-3">
-                  <MorphingDialogClose asChild>
-                    <button
-                      type="button"
-                      className="inline-flex h-10 items-center justify-center rounded-full border border-input bg-background px-6 py-2 text-sm font-medium ring-offset-background transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
-                    >
-                      Close
-                    </button>
-                  </MorphingDialogClose>
-                  
+              <div className="mt-4 space-y-2">
+                <div className="flex items-baseline gap-2">
+                  <p className="text-xs text-muted-foreground/60 whitespace-nowrap">Primary Link:</p>
                   <a
                     href={application.primaryUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex-1"
+                    className="text-sm font-mono text-muted-foreground/70 hover:text-primary transition-colors break-all"
                   >
-                    <InteractiveHoverButton
-                      text="Go to Link"
-                      className="w-full"
-                    />
+                    {application.primaryUrl}
                   </a>
                 </div>
                 
                 {application.secondaryUrl && (
-                  <a
-                    href={application.secondaryUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="block w-full"
-                  >
-                    <InteractiveHoverButton
-                      text="Alt Link"
-                      className="w-full"
-                    />
-                  </a>
+                  <div className="flex items-baseline gap-2">
+                    <p className="text-xs text-muted-foreground/60 whitespace-nowrap">Alt Link:</p>
+                    <a
+                      href={application.secondaryUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-sm font-mono text-muted-foreground/70 hover:text-primary transition-colors break-all"
+                    >
+                      {application.secondaryUrl}
+                    </a>
+                  </div>
                 )}
+              </div>
+
+              <div className="mt-6 flex gap-3">
+                <MorphingDialogClose asChild>
+                  <button
+                    type="button"
+                    className="inline-flex h-10 items-center justify-center rounded-full border border-input bg-background px-6 py-2 text-sm font-medium ring-offset-background transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
+                  >
+                    Close
+                  </button>
+                </MorphingDialogClose>
+                
+                <a
+                  href={application.primaryUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex-1"
+                >
+                  <InteractiveHoverButton
+                    text="Go to Link"
+                    className="w-full"
+                  />
+                </a>
               </div>
             </MorphingDialogDescription>
           </div>
