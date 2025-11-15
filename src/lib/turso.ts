@@ -1,4 +1,5 @@
 import { createClient, type Client } from "@libsql/client";
+import { Application, Category } from "@/types";
 
 let tursoClient: Client | null = null;
 
@@ -22,6 +23,35 @@ export function getTursoClient(): Client {
   return tursoClient;
 }
 
+// Helper function to map database row to Application type
+function mapRowToApplication(row: any): Application {
+  return {
+    id: row.id as number,
+    name: row.name as string,
+    description: row.description as string | null,
+    primaryUrl: row.primary_url as string,
+    secondaryUrl: row.secondary_url as string | null,
+    tags: row.tags as string | null,
+    screenshotLightUrl: row.screenshot_light_url as string | null,
+    screenshotDarkUrl: row.screenshot_dark_url as string | null,
+    category: row.category as string | null,
+    createdAt: new Date(row.created_at as string),
+    updatedAt: new Date(row.updated_at as string),
+    createdBy: row.created_by as string,
+  };
+}
+
+// Helper function to map database row to Category type
+function mapRowToCategory(row: any): Category {
+  return {
+    id: row.id as number,
+    name: row.name as string,
+    icon: row.icon as string | null,
+    createdAt: new Date(row.created_at as string),
+    updatedAt: new Date(row.updated_at as string),
+  };
+}
+
 // Helper functions for common queries
 export const turso = {
   // Applications
@@ -35,7 +65,7 @@ export const turso = {
       ? await client.execute({ sql: query, args: [category] })
       : await client.execute(query);
     
-    return result.rows;
+    return result.rows.map(mapRowToApplication);
   },
 
   async getApplicationById(id: number) {
@@ -44,7 +74,7 @@ export const turso = {
       sql: "SELECT * FROM applications WHERE id = ?",
       args: [id],
     });
-    return result.rows[0] || null;
+    return result.rows[0] ? mapRowToApplication(result.rows[0]) : null;
   },
 
   async createApplication(data: {
@@ -121,7 +151,7 @@ export const turso = {
   async getCategories() {
     const client = getTursoClient();
     const result = await client.execute("SELECT * FROM categories ORDER BY name ASC");
-    return result.rows;
+    return result.rows.map(mapRowToCategory);
   },
 
   async getCategoryById(id: number) {
@@ -130,7 +160,7 @@ export const turso = {
       sql: "SELECT * FROM categories WHERE id = ?",
       args: [id],
     });
-    return result.rows[0] || null;
+    return result.rows[0] ? mapRowToCategory(result.rows[0]) : null;
   },
 
   async createCategory(data: { name: string; icon?: string }) {

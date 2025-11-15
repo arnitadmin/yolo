@@ -54,7 +54,7 @@ export function AppCard({ application }: AppCardProps) {
 
         <Card className="relative flex h-full flex-col overflow-hidden border-border/40 bg-card transition-all hover:border-border p-3">
           {screenshotUrl && (
-            <div className="relative w-full overflow-hidden rounded-md bg-muted" style={{ aspectRatio: "16/9" }}>
+            <div className="relative w-full overflow-hidden rounded-md" style={{ aspectRatio: "16/9" }}>
               <Image
                 src={screenshotUrl}
                 alt={application.name}

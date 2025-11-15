@@ -30,6 +30,16 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import {
   Card,
   CardContent,
   CardDescription,
@@ -74,6 +84,8 @@ export default function AdminPage() {
   const [editingCat, setEditingCat] = useState<Category | null>(null);
   const [uploading, setUploading] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [deleteAppId, setDeleteAppId] = useState<number | null>(null);
+  const [deleteCatId, setDeleteCatId] = useState<number | null>(null);
 
   // Form states
   const [appForm, setAppForm] = useState<ApplicationInput>({
@@ -148,11 +160,11 @@ export default function AdminPage() {
     }
   }
 
-  async function handleAppDelete(id: number) {
-    if (!confirm("Are you sure you want to delete this application?")) return;
+  async function handleAppDelete() {
+    if (deleteAppId === null) return;
 
     try {
-      const res = await fetch(`/api/applications/${id}`, {
+      const res = await fetch(`/api/applications/${deleteAppId}`, {
         method: "DELETE",
       });
 
@@ -165,6 +177,8 @@ export default function AdminPage() {
     } catch (error) {
       console.error("Error deleting application:", error);
       alert("Failed to delete application");
+    } finally {
+      setDeleteAppId(null);
     }
   }
 
@@ -197,11 +211,11 @@ export default function AdminPage() {
     }
   }
 
-  async function handleCategoryDelete(id: number) {
-    if (!confirm("Are you sure you want to delete this category?")) return;
+  async function handleCategoryDelete() {
+    if (deleteCatId === null) return;
 
     try {
-      const res = await fetch(`/api/categories/${id}`, {
+      const res = await fetch(`/api/categories/${deleteCatId}`, {
         method: "DELETE",
       });
 
@@ -214,6 +228,8 @@ export default function AdminPage() {
     } catch (error) {
       console.error("Error deleting category:", error);
       alert("Failed to delete category");
+    } finally {
+      setDeleteCatId(null);
     }
   }
 
@@ -531,7 +547,7 @@ export default function AdminPage() {
                         <Button
                           size="icon"
                           variant="ghost"
-                          onClick={() => handleAppDelete(app.id)}
+                          onClick={() => setDeleteAppId(app.id)}
                         >
                           <Trash2 className="h-4 w-4" />
                         </Button>
@@ -690,7 +706,7 @@ export default function AdminPage() {
                           <Button
                             size="icon"
                             variant="ghost"
-                            onClick={() => handleCategoryDelete(cat.id)}
+                            onClick={() => setDeleteCatId(cat.id)}
                           >
                             <Trash2 className="h-4 w-4" />
                           </Button>
@@ -711,6 +727,40 @@ export default function AdminPage() {
         onCategoryChange={setSelectedCategory}
         isAdmin={true}
       />
+
+      {/* Delete Application Confirmation */}
+      <AlertDialog open={deleteAppId !== null} onOpenChange={(open) => !open && setDeleteAppId(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete the application
+              and remove its data from the database.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleAppDelete}>Delete</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Delete Category Confirmation */}
+      <AlertDialog open={deleteCatId !== null} onOpenChange={(open) => !open && setDeleteCatId(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete the category
+              and remove its data from the database.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleCategoryDelete}>Delete</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
