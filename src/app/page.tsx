@@ -67,6 +67,14 @@ export default function Home() {
   const filteredApplications = useMemo(() => {
     let filtered = applications;
 
+    // Filter by access level - only show admin apps to admins
+    filtered = filtered.filter((app) => {
+      if (app.access === "admin") {
+        return isAdmin;
+      }
+      return true;
+    });
+
     // Apply category filter
     if (selectedCategory) {
       filtered = filtered.filter((app) => app.category === selectedCategory);
@@ -77,16 +85,24 @@ export default function Home() {
       const results = fuse.search(searchQuery);
       const searchFiltered = results.map((result) => result.item);
       
+      // Filter by access level in search results
+      const accessFiltered = searchFiltered.filter((app) => {
+        if (app.access === "admin") {
+          return isAdmin;
+        }
+        return true;
+      });
+      
       // If category is selected, intersect the results
       if (selectedCategory) {
-        return searchFiltered.filter((app) => app.category === selectedCategory);
+        return accessFiltered.filter((app) => app.category === selectedCategory);
       }
       
-      return searchFiltered;
+      return accessFiltered;
     }
 
     return filtered;
-  }, [applications, selectedCategory, searchQuery, fuse]);
+  }, [applications, selectedCategory, searchQuery, fuse, isAdmin]);
 
   return (
     <div className="min-h-screen bg-background">

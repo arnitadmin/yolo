@@ -15,6 +15,7 @@ interface AppDockProps {
 
 export function AppDock({
   categories,
+  selectedCategory,
   onCategoryChange,
   isAdmin,
 }: AppDockProps) {
@@ -38,10 +39,20 @@ export function AppDock({
     }
   };
 
+  // Determine active dock item based on selected category
+  const getActiveDockItem = () => {
+    if (selectedCategory === null) {
+      return "all-apps";
+    }
+    const category = categories.find(c => c.name === selectedCategory);
+    return category ? `category-${category.id}` : "all-apps";
+  };
+
   return (
     <div className="fixed bottom-4 left-1/2 z-50 max-w-full -translate-x-1/2">
-      <Dock className="items-end pb-3">
+      <Dock className="items-end pb-3" activeItem={getActiveDockItem()}>
         <DockItem
+          id="all-apps"
           className="aspect-square cursor-pointer rounded-full bg-secondary"
           onClick={() => handleCategoryClick(null)}
         >
@@ -57,6 +68,7 @@ export function AppDock({
           return (
             <DockItem
               key={category.id}
+              id={`category-${category.id}`}
               className="aspect-square cursor-pointer rounded-full bg-secondary"
               onClick={() => handleCategoryClick(category.name)}
             >
@@ -76,6 +88,7 @@ export function AppDock({
 
         {isAdmin && !isOnAdminPage && (
           <DockItem
+            id="admin-panel"
             className="aspect-square cursor-pointer rounded-full bg-secondary"
             onClick={() => router.push("/admin")}
           >

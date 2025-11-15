@@ -10,6 +10,7 @@ export const applicationSchema = z.object({
   screenshotLightUrl: z.string().optional(),
   screenshotDarkUrl: z.string().optional(),
   category: z.string().optional(),
+  access: z.enum(["user", "admin"]).default("user"),
 });
 
 export type ApplicationInput = z.infer<typeof applicationSchema>;
@@ -33,6 +34,7 @@ export interface Application {
   screenshotLightUrl: string | null;
   screenshotDarkUrl: string | null;
   category: string | null;
+  access: string;
   createdAt: Date;
   updatedAt: Date;
   createdBy: string;

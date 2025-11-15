@@ -97,6 +97,7 @@ export default function AdminPage() {
     screenshotLightUrl: "",
     screenshotDarkUrl: "",
     category: "",
+    access: "user",
   });
 
   const [catForm, setCatForm] = useState<CategoryInput>({
@@ -277,6 +278,7 @@ export default function AdminPage() {
       screenshotLightUrl: "",
       screenshotDarkUrl: "",
       category: "",
+      access: "user",
     });
     setEditingApp(null);
   }
@@ -301,6 +303,7 @@ export default function AdminPage() {
         screenshotLightUrl: app.screenshotLightUrl || "",
         screenshotDarkUrl: app.screenshotDarkUrl || "",
         category: app.category || "",
+        access: (app.access as "user" | "admin") || "user",
       });
     } else {
       resetAppForm();
@@ -443,6 +446,23 @@ export default function AdminPage() {
                         </Select>
                       </div>
                       <div className="space-y-2">
+                        <Label htmlFor="access">Access Level</Label>
+                        <Select
+                          value={appForm.access}
+                          onValueChange={(value) =>
+                            setAppForm({ ...appForm, access: value as "user" | "admin" })
+                          }
+                        >
+                          <SelectTrigger className="w-full">
+                            <SelectValue placeholder="Select access level" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="user">User (Default)</SelectItem>
+                            <SelectItem value="admin">Admin Only</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="space-y-2">
                         <Label>Screenshots</Label>
                         <div className="grid grid-cols-2 gap-4">
                           <div>
@@ -530,8 +550,15 @@ export default function AdminPage() {
                       key={app.id}
                       className="flex items-center justify-between rounded-lg border border-border p-3"
                     >
-                      <div>
-                        <p className="font-medium">{app.name}</p>
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2">
+                          <p className="font-medium">{app.name}</p>
+                          {app.access === "admin" && (
+                            <span className="inline-flex items-center rounded-md bg-red-50 dark:bg-red-900/20 px-2 py-1 text-xs font-medium text-red-700 dark:text-red-400 ring-1 ring-inset ring-red-600/20 dark:ring-red-400/20">
+                              Admin Only
+                            </span>
+                          )}
+                        </div>
                         <p className="text-sm text-muted-foreground">
                           {app.primaryUrl}
                         </p>

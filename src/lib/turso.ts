@@ -35,6 +35,7 @@ function mapRowToApplication(row: any): Application {
     screenshotLightUrl: row.screenshot_light_url as string | null,
     screenshotDarkUrl: row.screenshot_dark_url as string | null,
     category: row.category as string | null,
+    access: row.access as string,
     createdAt: new Date(row.created_at as string),
     updatedAt: new Date(row.updated_at as string),
     createdBy: row.created_by as string,
@@ -86,12 +87,13 @@ export const turso = {
     screenshotLightUrl?: string;
     screenshotDarkUrl?: string;
     category?: string;
+    access?: string;
     createdBy: string;
   }) {
     const client = getTursoClient();
     const result = await client.execute({
-      sql: `INSERT INTO applications (name, description, primary_url, secondary_url, tags, screenshot_light_url, screenshot_dark_url, category, created_by, created_at, updated_at)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))`,
+      sql: `INSERT INTO applications (name, description, primary_url, secondary_url, tags, screenshot_light_url, screenshot_dark_url, category, access, created_by, created_at, updated_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))`,
       args: [
         data.name,
         data.description || null,
@@ -101,6 +103,7 @@ export const turso = {
         data.screenshotLightUrl || null,
         data.screenshotDarkUrl || null,
         data.category || null,
+        data.access || "user",
         data.createdBy,
       ],
     });
@@ -116,6 +119,7 @@ export const turso = {
     screenshotLightUrl: string;
     screenshotDarkUrl: string;
     category: string;
+    access: string;
   }>) {
     const client = getTursoClient();
     const updates: string[] = [];
@@ -129,6 +133,7 @@ export const turso = {
     if (data.screenshotLightUrl !== undefined) { updates.push("screenshot_light_url = ?"); args.push(data.screenshotLightUrl); }
     if (data.screenshotDarkUrl !== undefined) { updates.push("screenshot_dark_url = ?"); args.push(data.screenshotDarkUrl); }
     if (data.category !== undefined) { updates.push("category = ?"); args.push(data.category); }
+    if (data.access !== undefined) { updates.push("access = ?"); args.push(data.access); }
 
     updates.push("updated_at = datetime('now')");
     args.push(id);
