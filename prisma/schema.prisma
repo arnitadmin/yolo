@@ -1,0 +1,39 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Application {
+  id            Int      @id @default(autoincrement())
+  name          String
+  description   String?
+  primaryUrl    String   @map("primary_url")
+  secondaryUrl  String?  @map("secondary_url")
+  tags          String?  // Comma-separated tags
+  screenshotUrl String?  @map("screenshot_url")
+  category      String?
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+  createdBy     String   @map("created_by") // Clerk user ID
+
+  @@index([name])
+  @@index([category])
+  @@map("applications")
+}
+
+model Category {
+  id        Int      @id @default(autoincrement())
+  name      String   @unique
+  icon      String?  // Lucide icon name
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("categories")
+}
