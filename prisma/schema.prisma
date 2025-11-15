@@ -11,17 +11,18 @@ datasource db {
 }
 
 model Application {
-  id            Int      @id @default(autoincrement())
-  name          String
-  description   String?
-  primaryUrl    String   @map("primary_url")
-  secondaryUrl  String?  @map("secondary_url")
-  tags          String?  // Comma-separated tags
-  screenshotUrl String?  @map("screenshot_url")
-  category      String?
-  createdAt     DateTime @default(now()) @map("created_at")
-  updatedAt     DateTime @updatedAt @map("updated_at")
-  createdBy     String   @map("created_by") // Clerk user ID
+  id                   Int      @id @default(autoincrement())
+  name                 String
+  description          String?
+  primaryUrl           String   @map("primary_url")
+  secondaryUrl         String?  @map("secondary_url")
+  tags                 String?  // Comma-separated tags
+  screenshotLightUrl   String?  @map("screenshot_light_url")
+  screenshotDarkUrl    String?  @map("screenshot_dark_url")
+  category             String?
+  createdAt            DateTime @default(now()) @map("created_at")
+  updatedAt            DateTime @updatedAt @map("updated_at")
+  createdBy            String   @map("created_by") // Clerk user ID
 
   @@index([name])
   @@index([category])

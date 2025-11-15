@@ -19,7 +19,7 @@ export function Header() {
         <div className="flex items-center gap-2">
           <h1 className="text-2xl font-bold">
             <TextScramble className="font-mono text-sm uppercase tracking-wider">
-              YOLO: Aeron&apos;s List of Apps
+              YOLO: You Only Link Once
             </TextScramble>
           </h1>
         </div>

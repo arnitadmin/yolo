@@ -7,7 +7,8 @@ export const applicationSchema = z.object({
   primaryUrl: z.string().url("Primary URL must be a valid URL"),
   secondaryUrl: z.string().url("Secondary URL must be a valid URL").optional().or(z.literal("")),
   tags: z.string().optional(),
-  screenshotUrl: z.string().optional(),
+  screenshotLightUrl: z.string().optional(),
+  screenshotDarkUrl: z.string().optional(),
   category: z.string().optional(),
 });
 
@@ -29,7 +30,8 @@ export interface Application {
   primaryUrl: string;
   secondaryUrl: string | null;
   tags: string | null;
-  screenshotUrl: string | null;
+  screenshotLightUrl: string | null;
+  screenshotDarkUrl: string | null;
   category: string | null;
   createdAt: Date;
   updatedAt: Date;

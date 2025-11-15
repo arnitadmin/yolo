@@ -31,9 +31,20 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Check if Blob token is configured
+    const blobToken = process.env.YOLO_BLOB_READ_WRITE_TOKEN || process.env.BLOB_READ_WRITE_TOKEN;
+    if (!blobToken) {
+      console.error("YOLO_BLOB_READ_WRITE_TOKEN or BLOB_READ_WRITE_TOKEN is not configured");
+      return NextResponse.json(
+        { error: "Blob storage is not configured. Please set YOLO_BLOB_READ_WRITE_TOKEN or BLOB_READ_WRITE_TOKEN environment variable." },
+        { status: 500 }
+      );
+    }
+
     // Upload to Vercel Blob
     const blob = await put(file.name, file, {
       access: "public",
+      token: blobToken,
     });
 
     return NextResponse.json({ url: blob.url });
@@ -42,6 +53,13 @@ export async function POST(request: NextRequest) {
 
     if (error instanceof Error && error.message.includes("Forbidden")) {
       return NextResponse.json({ error: "Admin access required" }, { status: 403 });
+    }
+
+    if (error instanceof Error) {
+      return NextResponse.json(
+        { error: `Failed to upload file: ${error.message}` },
+        { status: 500 }
+      );
     }
 
     return NextResponse.json(

@@ -108,7 +108,7 @@ export function DockLabel({
   return (
     <motion.div
       initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: show ? 1 : 0, y: show ? -40 : 10 }}
+      animate={{ opacity: show ? 1 : 0, y: show ? -10 : 10 }}
       transition={{ duration: 0.2 }}
       className={cn(
         "absolute bottom-full mb-2 whitespace-nowrap rounded-md bg-foreground px-2 py-1 text-xs text-background",

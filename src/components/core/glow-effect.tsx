@@ -49,32 +49,20 @@ export function GlowEffect({
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
       const rect = canvas.getBoundingClientRect();
-      const centerX = rect.width / 2;
-      const centerY = rect.height / 2;
-      const radius = Math.max(rect.width, rect.height) * 0.6;
 
       if (mode === "colorShift") {
         const colorIndex = Math.floor(progress * colors.length);
         const nextColorIndex = (colorIndex + 1) % colors.length;
         const colorProgress = (progress * colors.length) % 1;
 
-        const gradient = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, radius);
+        const currentColor = blendColors(colors[colorIndex], colors[nextColorIndex], colorProgress);
         
-        gradient.addColorStop(0, colors[colorIndex]);
-        gradient.addColorStop(0.5, blendColors(colors[colorIndex], colors[nextColorIndex], colorProgress));
-        gradient.addColorStop(1, "transparent");
-
-        ctx.fillStyle = gradient;
+        // Fill entire area with semi-transparent color
+        ctx.fillStyle = currentColor + '40'; // Add 40 for ~25% opacity
         ctx.fillRect(0, 0, rect.width, rect.height);
       } else {
-        const gradient = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, radius);
-        
-        colors.forEach((color, index) => {
-          gradient.addColorStop(index / (colors.length - 1), color);
-        });
-        gradient.addColorStop(1, "transparent");
-
-        ctx.fillStyle = gradient;
+        // Use first color with opacity
+        ctx.fillStyle = colors[0] + '40'; // Add 40 for ~25% opacity
         ctx.fillRect(0, 0, rect.width, rect.height);
       }
 

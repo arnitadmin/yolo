@@ -1,7 +1,8 @@
 "use client";
 
 import { useRouter, usePathname } from "next/navigation";
-import { Home, Settings, User } from "lucide-react";
+import { Home, Settings } from "lucide-react";
+import * as LucideIcons from "lucide-react";
 import { Dock, DockIcon, DockItem, DockLabel } from "@/components/core/dock";
 import { Category } from "@/types";
 
@@ -21,10 +22,10 @@ export function AppDock({
   const pathname = usePathname();
   const isOnAdminPage = pathname === "/admin";
 
-  const iconMap: Record<string, React.ReactNode> = {
-    Home: <Home className="h-full w-full text-foreground/60" />,
-    Settings: <Settings className="h-full w-full text-foreground/60" />,
-    User: <User className="h-full w-full text-foreground/60" />,
+  // Helper function to get icon component from Lucide
+  const getIconComponent = (iconName: string | null) => {
+    if (!iconName) return null;
+    return (LucideIcons as any)[iconName];
   };
 
   const handleCategoryClick = (categoryName: string | null) => {
@@ -45,58 +46,45 @@ export function AppDock({
           onClick={() => handleCategoryClick(null)}
         >
           <DockLabel>All Apps</DockLabel>
-          <DockIcon>
+          <DockIcon className="scale-[0.6]">
             <Home className="h-full w-full text-foreground/60" />
           </DockIcon>
         </DockItem>
 
-        {categories.map((category) => (
-          <DockItem
-            key={category.id}
-            className="aspect-square cursor-pointer rounded-full bg-secondary"
-            onClick={() => handleCategoryClick(category.name)}
-          >
-            <DockLabel>{category.name}</DockLabel>
-            <DockIcon>
-              {category.icon && iconMap[category.icon] ? (
-                iconMap[category.icon]
-              ) : (
-                <div className="flex h-full w-full items-center justify-center text-xs font-bold text-foreground/60">
-                  {category.name.charAt(0).toUpperCase()}
-                </div>
-              )}
-            </DockIcon>
-          </DockItem>
-        ))}
+        {categories.map((category) => {
+          const IconComponent = getIconComponent(category.icon);
+          
+          return (
+            <DockItem
+              key={category.id}
+              className="aspect-square cursor-pointer rounded-full bg-secondary"
+              onClick={() => handleCategoryClick(category.name)}
+            >
+              <DockLabel>{category.name}</DockLabel>
+              <DockIcon className="scale-[0.6]">
+                {IconComponent ? (
+                  <IconComponent className="h-full w-full text-foreground/60" />
+                ) : (
+                  <div className="flex h-full w-full items-center justify-center text-xs font-bold text-foreground/60">
+                    {category.name.charAt(0).toUpperCase()}
+                  </div>
+                )}
+              </DockIcon>
+            </DockItem>
+          );
+        })}
 
-        {isAdmin && (
+        {isAdmin && !isOnAdminPage && (
           <DockItem
             className="aspect-square cursor-pointer rounded-full bg-secondary"
-            onClick={() => {
-              if (isOnAdminPage) {
-                router.push("/");
-              } else {
-                router.push("/admin");
-              }
-            }}
+            onClick={() => router.push("/admin")}
           >
-            <DockLabel>{isOnAdminPage ? "Home" : "Admin Panel"}</DockLabel>
-            <DockIcon>
-              {isOnAdminPage ? (
-                <Home className="h-full w-full text-foreground/60" />
-              ) : (
-                <Settings className="h-full w-full text-foreground/60" />
-              )}
+            <DockLabel>Admin Panel</DockLabel>
+            <DockIcon className="scale-[0.6]">
+              <Settings className="h-full w-full text-foreground/60" />
             </DockIcon>
           </DockItem>
         )}
-
-        <DockItem className="aspect-square cursor-pointer rounded-full bg-secondary">
-          <DockLabel>Profile</DockLabel>
-          <DockIcon>
-            <User className="h-full w-full text-foreground/60" />
-          </DockIcon>
-        </DockItem>
       </Dock>
     </div>
   );

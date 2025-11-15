@@ -2,17 +2,25 @@
 
 import { useEffect, useState } from "react";
 import { 
-  Plus, Pencil, Trash2, Home, Settings, User, 
-  Folder, FileText, Code, Database, Cloud, Mail, 
-  Calendar, Clock, Image, Video, Music, Book,
-  ShoppingCart, Heart, Star, Zap, Check
+  Plus, Pencil, Trash2, Plane, Rocket, Satellite, 
+  Radio, Cpu, Wifi, Radar, CircuitBoard, Zap, 
+  Sun, Battery, BatteryCharging, Fuel, Wind, Globe,
+  Shield, ShieldCheck, Lock, Server, Database, Cloud
 } from "lucide-react";
+import * as LucideIcons from "lucide-react";
 import { Header } from "@/components/header";
 import { AppDock } from "@/components/app-dock";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   Dialog,
   DialogContent,
@@ -31,26 +39,29 @@ import {
 import { Application, Category, ApplicationInput, CategoryInput } from "@/types";
 
 const ICON_OPTIONS = [
-  { name: "Home", icon: Home },
-  { name: "Settings", icon: Settings },
-  { name: "User", icon: User },
-  { name: "Folder", icon: Folder },
-  { name: "FileText", icon: FileText },
-  { name: "Code", icon: Code },
+  { name: "Plane", icon: Plane },
+  { name: "Rocket", icon: Rocket },
+  { name: "Satellite", icon: Satellite },
+  { name: "Radio", icon: Radio },
+  { name: "Cpu", icon: Cpu },
+  { name: "Wifi", icon: Wifi },
+  { name: "Radar", icon: Radar },
+  { name: "CircuitBoard", icon: CircuitBoard },
+  { name: "Zap", icon: Zap },
+  { name: "Sun", icon: Sun },
+  { name: "Battery", icon: Battery },
+  { name: "BatteryCharging", icon: BatteryCharging },
+  { name: "Fuel", icon: Fuel },
+  { name: "Wind", icon: Wind },
+  { name: "Globe", icon: Globe },
+  { name: "Shield", icon: Shield },
+  { name: "ShieldCheck", icon: ShieldCheck },
+  { name: "Lock", icon: Lock },
+  { name: "Server", icon: Server },
   { name: "Database", icon: Database },
   { name: "Cloud", icon: Cloud },
-  { name: "Mail", icon: Mail },
-  { name: "Calendar", icon: Calendar },
-  { name: "Clock", icon: Clock },
-  { name: "Image", icon: Image },
-  { name: "Video", icon: Video },
-  { name: "Music", icon: Music },
-  { name: "Book", icon: Book },
-  { name: "ShoppingCart", icon: ShoppingCart },
-  { name: "Heart", icon: Heart },
-  { name: "Star", icon: Star },
-  { name: "Zap", icon: Zap },
-  { name: "Check", icon: Check },
+  { name: "Plus", icon: Plus },
+  { name: "Pencil", icon: Pencil },
 ];
 
 export default function AdminPage() {
@@ -71,7 +82,8 @@ export default function AdminPage() {
     primaryUrl: "",
     secondaryUrl: "",
     tags: "",
-    screenshotUrl: "",
+    screenshotLightUrl: "",
+    screenshotDarkUrl: "",
     category: "",
   });
 
@@ -205,7 +217,7 @@ export default function AdminPage() {
     }
   }
 
-  async function handleImageUpload(e: React.ChangeEvent<HTMLInputElement>) {
+  async function handleImageUpload(e: React.ChangeEvent<HTMLInputElement>, mode: 'light' | 'dark') {
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -222,7 +234,11 @@ export default function AdminPage() {
 
       if (res.ok) {
         const data = await res.json();
-        setAppForm({ ...appForm, screenshotUrl: data.url });
+        if (mode === 'light') {
+          setAppForm({ ...appForm, screenshotLightUrl: data.url });
+        } else {
+          setAppForm({ ...appForm, screenshotDarkUrl: data.url });
+        }
       } else {
         const error = await res.json();
         alert(error.error || "Failed to upload image");
@@ -242,7 +258,8 @@ export default function AdminPage() {
       primaryUrl: "",
       secondaryUrl: "",
       tags: "",
-      screenshotUrl: "",
+      screenshotLightUrl: "",
+      screenshotDarkUrl: "",
       category: "",
     });
     setEditingApp(null);
@@ -265,7 +282,8 @@ export default function AdminPage() {
         primaryUrl: app.primaryUrl,
         secondaryUrl: app.secondaryUrl || "",
         tags: app.tags || "",
-        screenshotUrl: app.screenshotUrl || "",
+        screenshotLightUrl: app.screenshotLightUrl || "",
+        screenshotDarkUrl: app.screenshotDarkUrl || "",
         category: app.category || "",
       });
     } else {
@@ -390,31 +408,82 @@ export default function AdminPage() {
                       </div>
                       <div className="space-y-2">
                         <Label htmlFor="category">Category</Label>
-                        <Input
-                          id="category"
+                        <Select
                           value={appForm.category}
-                          onChange={(e) =>
-                            setAppForm({ ...appForm, category: e.target.value })
+                          onValueChange={(value) =>
+                            setAppForm({ ...appForm, category: value })
                           }
-                        />
+                        >
+                          <SelectTrigger className="w-full">
+                            <SelectValue placeholder="Select a category" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {categories.map((cat) => (
+                              <SelectItem key={cat.id} value={cat.name}>
+                                {cat.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="screenshot">Screenshot</Label>
-                        <div className="flex gap-2">
-                          <Input
-                            id="screenshot"
-                            type="file"
-                            accept="image/*"
-                            onChange={handleImageUpload}
-                            disabled={uploading}
-                          />
-                          {uploading && <span>Uploading...</span>}
+                        <Label>Screenshots</Label>
+                        <div className="grid grid-cols-2 gap-4">
+                          <div>
+                            <Label htmlFor="screenshot-light" className="text-sm text-muted-foreground">Light Mode</Label>
+                            <div className="flex flex-col gap-2 mt-1">
+                              <Button
+                                type="button"
+                                variant="outline"
+                                onClick={() => document.getElementById("screenshot-light")?.click()}
+                                disabled={uploading}
+                                size="sm"
+                              >
+                                {uploading ? "Uploading..." : "Choose File"}
+                              </Button>
+                              <Input
+                                id="screenshot-light"
+                                type="file"
+                                accept="image/*"
+                                onChange={(e) => handleImageUpload(e, 'light')}
+                                disabled={uploading}
+                                className="hidden"
+                              />
+                              {appForm.screenshotLightUrl && (
+                                <span className="text-xs text-muted-foreground">
+                                  ✓ Light image uploaded
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                          <div>
+                            <Label htmlFor="screenshot-dark" className="text-sm text-muted-foreground">Dark Mode</Label>
+                            <div className="flex flex-col gap-2 mt-1">
+                              <Button
+                                type="button"
+                                variant="outline"
+                                onClick={() => document.getElementById("screenshot-dark")?.click()}
+                                disabled={uploading}
+                                size="sm"
+                              >
+                                {uploading ? "Uploading..." : "Choose File"}
+                              </Button>
+                              <Input
+                                id="screenshot-dark"
+                                type="file"
+                                accept="image/*"
+                                onChange={(e) => handleImageUpload(e, 'dark')}
+                                disabled={uploading}
+                                className="hidden"
+                              />
+                              {appForm.screenshotDarkUrl && (
+                                <span className="text-xs text-muted-foreground">
+                                  ✓ Dark image uploaded
+                                </span>
+                              )}
+                            </div>
+                          </div>
                         </div>
-                        {appForm.screenshotUrl && (
-                          <p className="mt-2 text-sm text-muted-foreground">
-                            Image uploaded successfully
-                          </p>
-                        )}
                       </div>
                       <div className="flex gap-2">
                         <Button type="submit">
@@ -514,26 +583,47 @@ export default function AdminPage() {
                       </div>
                       <div className="space-y-2">
                         <Label>Icon</Label>
-                        <div className="grid grid-cols-5 gap-2">
-                          {ICON_OPTIONS.map((option) => {
-                            const IconComponent = option.icon;
-                            return (
-                              <button
-                                key={option.name}
-                                type="button"
-                                onClick={() =>
-                                  setCatForm({ ...catForm, icon: option.name })
-                                }
-                                className={`flex aspect-square items-center justify-center rounded-lg border-2 transition-colors hover:bg-accent ${
-                                  catForm.icon === option.name
-                                    ? "border-primary bg-accent"
-                                    : "border-border"
-                                }`}
-                              >
-                                <IconComponent className="h-5 w-5" />
-                              </button>
-                            );
-                          })}
+                        <div className="space-y-3">
+                          <div>
+                            <p className="text-sm text-muted-foreground mb-2">
+                              Select from common icons:
+                            </p>
+                            <div className="grid grid-cols-6 gap-2">
+                              {ICON_OPTIONS.map((option) => {
+                                const IconComponent = option.icon;
+                                return (
+                                  <button
+                                    key={option.name}
+                                    type="button"
+                                    onClick={() =>
+                                      setCatForm({ ...catForm, icon: option.name })
+                                    }
+                                    className={`flex aspect-square items-center justify-center rounded-lg border-2 transition-colors hover:bg-accent ${
+                                      catForm.icon === option.name
+                                        ? "border-primary bg-accent"
+                                        : "border-border"
+                                    }`}
+                                  >
+                                    <IconComponent className="h-5 w-5" />
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          </div>
+                          <div>
+                            <Label htmlFor="customIcon" className="text-sm text-muted-foreground">
+                              Or enter custom icon name (e.g., Rocket, Package, Wrench)
+                            </Label>
+                            <Input
+                              id="customIcon"
+                              value={catForm.icon}
+                              onChange={(e) =>
+                                setCatForm({ ...catForm, icon: e.target.value })
+                              }
+                              placeholder="Enter Lucide icon name"
+                              className="mt-1"
+                            />
+                          </div>
                         </div>
                         {catForm.icon && (
                           <p className="mt-2 text-sm text-muted-foreground">
@@ -565,37 +655,49 @@ export default function AdminPage() {
                 <p className="text-muted-foreground">No categories yet</p>
               ) : (
                 <div className="space-y-2">
-                  {categories.map((cat) => (
-                    <div
-                      key={cat.id}
-                      className="flex items-center justify-between rounded-lg border border-border p-3"
-                    >
-                      <div>
-                        <p className="font-medium">{cat.name}</p>
-                        {cat.icon && (
-                          <p className="text-sm text-muted-foreground">
-                            Icon: {cat.icon}
-                          </p>
-                        )}
+                  {categories.map((cat) => {
+                    // Try to get icon from predefined list first, then from all Lucide icons
+                    let IconComponent = cat.icon 
+                      ? ICON_OPTIONS.find(opt => opt.name === cat.icon)?.icon 
+                      : null;
+                    
+                    // If not in predefined list, try to get from all Lucide icons
+                    if (!IconComponent && cat.icon) {
+                      IconComponent = (LucideIcons as any)[cat.icon];
+                    }
+                    
+                    return (
+                      <div
+                        key={cat.id}
+                        className="flex items-center justify-between rounded-lg border border-border p-3"
+                      >
+                        <div className="flex items-center gap-3">
+                          {IconComponent && (
+                            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-accent">
+                              <IconComponent className="h-5 w-5" />
+                            </div>
+                          )}
+                          <p className="font-medium">{cat.name}</p>
+                        </div>
+                        <div className="flex gap-2">
+                          <Button
+                            size="icon"
+                            variant="ghost"
+                            onClick={() => openCatDialog(cat)}
+                          >
+                            <Pencil className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            size="icon"
+                            variant="ghost"
+                            onClick={() => handleCategoryDelete(cat.id)}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
                       </div>
-                      <div className="flex gap-2">
-                        <Button
-                          size="icon"
-                          variant="ghost"
-                          onClick={() => openCatDialog(cat)}
-                        >
-                          <Pencil className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          size="icon"
-                          variant="ghost"
-                          onClick={() => handleCategoryDelete(cat.id)}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               )}
             </CardContent>
