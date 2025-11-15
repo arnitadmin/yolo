@@ -32,8 +32,8 @@ export function TextScramble({
       for (let i = 0; i < length; i++) {
         const from = "";
         const to = children[i];
-        const start = Math.floor(Math.random() * 20);
-        const end = start + Math.floor(Math.random() * 30);
+        const start = Math.floor(Math.random() * 60);
+        const end = start + Math.floor(Math.random() * 90);
         queue.push({ from, to, start, end });
       }
 
