@@ -1,11 +1,8 @@
 "use client";
 
-export const dynamic = "force-dynamic";
-
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 import { 
-  Plus, Pencil, Trash2, Upload, Home, Settings, User, 
+  Plus, Pencil, Trash2, Home, Settings, User, 
   Folder, FileText, Code, Database, Cloud, Mail, 
   Calendar, Clock, Image, Video, Music, Book,
   ShoppingCart, Heart, Star, Zap, Check
@@ -57,7 +54,6 @@ const ICON_OPTIONS = [
 ];
 
 export default function AdminPage() {
-  const router = useRouter();
   const [applications, setApplications] = useState<Application[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);

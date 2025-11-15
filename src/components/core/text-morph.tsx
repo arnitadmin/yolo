@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useMemo } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 
@@ -10,11 +10,8 @@ interface TextMorphProps {
 }
 
 export function TextMorph({ children, className }: TextMorphProps) {
-  const [key, setKey] = useState(0);
-
-  useEffect(() => {
-    setKey((prev) => prev + 1);
-  }, [children]);
+  // Use children as the key directly to trigger re-animation
+  const key = useMemo(() => String(children), [children]);
 
   return (
     <AnimatePresence mode="wait">

@@ -14,7 +14,6 @@ interface AppDockProps {
 
 export function AppDock({
   categories,
-  selectedCategory,
   onCategoryChange,
   isAdmin,
 }: AppDockProps) {

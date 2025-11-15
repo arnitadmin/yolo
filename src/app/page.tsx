@@ -1,7 +1,5 @@
 "use client";
 
-export const dynamic = "force-dynamic";
-
 import { useEffect, useState, useMemo } from "react";
 import { Search, X } from "lucide-react";
 import Fuse from "fuse.js";

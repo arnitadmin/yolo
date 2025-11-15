@@ -38,7 +38,7 @@ export function GlowEffect({
     window.addEventListener("resize", resizeCanvas);
 
     let animationFrame: number;
-    let startTime = Date.now();
+    const startTime = Date.now();
 
     const animate = () => {
       if (!ctx || !canvas) return;

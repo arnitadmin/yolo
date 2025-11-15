@@ -14,8 +14,6 @@ interface TextScrambleProps {
 export function TextScramble({
   children,
   className,
-  duration = 4000,
-  speed = 50,
   characterSet = "!<>-_\\/[]{}—=+*^?#________",
 }: TextScrambleProps) {
   const [displayText, setDisplayText] = useState(children);

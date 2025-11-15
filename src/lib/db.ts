@@ -19,7 +19,8 @@ function createPrismaClient() {
       authToken: process.env.DATABASE_AUTH_TOKEN,
     });
 
-    const adapter = new PrismaLibSQL(libsql as any);
+    // @ts-expect-error - PrismaLibSQL type mismatch with libsql client
+    const adapter = new PrismaLibSQL(libsql);
     return new PrismaClient({ adapter } as any);
   }
 
