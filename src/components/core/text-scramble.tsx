@@ -32,8 +32,9 @@ export function TextScramble({
       for (let i = 0; i < length; i++) {
         const from = "";
         const to = children[i];
-        const start = Math.floor(Math.random() * 60);
-        const end = start + Math.floor(Math.random() * 90);
+        // Sequential left-to-right: each character starts based on its position
+        const start = i * 3; // Delay between each character starting
+        const end = start + 30 + Math.floor(Math.random() * 20); // Duration each character scrambles
         queue.push({ from, to, start, end });
       }
 
