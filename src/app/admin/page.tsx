@@ -251,11 +251,12 @@ export default function AdminPage() {
 
       if (res.ok) {
         const data = await res.json();
-        if (mode === 'light') {
-          setAppForm({ ...appForm, screenshotLightUrl: data.url });
-        } else {
-          setAppForm({ ...appForm, screenshotDarkUrl: data.url });
-        }
+        setAppForm((prev) => ({
+          ...prev,
+          ...(mode === 'light' 
+            ? { screenshotLightUrl: data.url } 
+            : { screenshotDarkUrl: data.url })
+        }));
       } else {
         const error = await res.json();
         alert(error.error || "Failed to upload image");
@@ -265,6 +266,8 @@ export default function AdminPage() {
       alert("Failed to upload image");
     } finally {
       setUploading(false);
+      // Reset the file input
+      e.target.value = '';
     }
   }
 
@@ -370,7 +373,7 @@ export default function AdminPage() {
                           id="name"
                           value={appForm.name}
                           onChange={(e) =>
-                            setAppForm({ ...appForm, name: e.target.value })
+                            setAppForm((prev) => ({ ...prev, name: e.target.value }))
                           }
                           required
                         />
@@ -381,10 +384,10 @@ export default function AdminPage() {
                           id="description"
                           value={appForm.description}
                           onChange={(e) =>
-                            setAppForm({
-                              ...appForm,
+                            setAppForm((prev) => ({
+                              ...prev,
                               description: e.target.value,
-                            })
+                            }))
                           }
                         />
                       </div>
@@ -395,7 +398,7 @@ export default function AdminPage() {
                           type="url"
                           value={appForm.primaryUrl}
                           onChange={(e) =>
-                            setAppForm({ ...appForm, primaryUrl: e.target.value })
+                            setAppForm((prev) => ({ ...prev, primaryUrl: e.target.value }))
                           }
                           required
                         />
@@ -407,10 +410,10 @@ export default function AdminPage() {
                           type="url"
                           value={appForm.secondaryUrl}
                           onChange={(e) =>
-                            setAppForm({
-                              ...appForm,
+                            setAppForm((prev) => ({
+                              ...prev,
                               secondaryUrl: e.target.value,
-                            })
+                            }))
                           }
                         />
                       </div>
@@ -420,7 +423,7 @@ export default function AdminPage() {
                           id="tags"
                           value={appForm.tags}
                           onChange={(e) =>
-                            setAppForm({ ...appForm, tags: e.target.value })
+                            setAppForm((prev) => ({ ...prev, tags: e.target.value }))
                           }
                           placeholder="ai, chatbot, productivity"
                         />
@@ -430,7 +433,7 @@ export default function AdminPage() {
                         <Select
                           value={appForm.category}
                           onValueChange={(value) =>
-                            setAppForm({ ...appForm, category: value })
+                            setAppForm((prev) => ({ ...prev, category: value }))
                           }
                         >
                           <SelectTrigger className="w-full">
@@ -450,7 +453,7 @@ export default function AdminPage() {
                         <Select
                           value={appForm.access}
                           onValueChange={(value) =>
-                            setAppForm({ ...appForm, access: value as "user" | "admin" })
+                            setAppForm((prev) => ({ ...prev, access: value as "user" | "admin" }))
                           }
                         >
                           <SelectTrigger className="w-full">
@@ -619,7 +622,7 @@ export default function AdminPage() {
                           id="catName"
                           value={catForm.name}
                           onChange={(e) =>
-                            setCatForm({ ...catForm, name: e.target.value })
+                            setCatForm((prev) => ({ ...prev, name: e.target.value }))
                           }
                           required
                         />
@@ -639,7 +642,7 @@ export default function AdminPage() {
                                     key={option.name}
                                     type="button"
                                     onClick={() =>
-                                      setCatForm({ ...catForm, icon: option.name })
+                                      setCatForm((prev) => ({ ...prev, icon: option.name }))
                                     }
                                     className={`flex aspect-square items-center justify-center rounded-lg border-2 transition-colors hover:bg-accent ${
                                       catForm.icon === option.name
@@ -661,7 +664,7 @@ export default function AdminPage() {
                               id="customIcon"
                               value={catForm.icon}
                               onChange={(e) =>
-                                setCatForm({ ...catForm, icon: e.target.value })
+                                setCatForm((prev) => ({ ...prev, icon: e.target.value }))
                               }
                               placeholder="Enter Lucide icon name"
                               className="mt-1"

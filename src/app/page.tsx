@@ -8,6 +8,7 @@ import { AppCard } from "@/components/app-card";
 import { AppDock } from "@/components/app-dock";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { LoadRipple } from "@/components/ui/load-ripple";
 import { Application, Category } from "@/types";
 
 export default function Home() {
@@ -151,7 +152,7 @@ export default function Home() {
 
         {loading ? (
           <div className="flex items-center justify-center py-20">
-            <p className="text-muted-foreground">Loading applications...</p>
+            <LoadRipple />
           </div>
         ) : filteredApplications.length === 0 ? (
           <div className="flex items-center justify-center py-20">
