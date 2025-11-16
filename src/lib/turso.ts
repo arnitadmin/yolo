@@ -36,6 +36,7 @@ function mapRowToApplication(row: any): Application {
     screenshotDarkUrl: row.screenshot_dark_url as string | null,
     category: row.category as string | null,
     access: row.access as string,
+    order: row.order as number,
     createdAt: new Date(row.created_at as string),
     updatedAt: new Date(row.updated_at as string),
     createdBy: row.created_by as string,
@@ -59,8 +60,8 @@ export const turso = {
   async getApplications(category?: string) {
     const client = getTursoClient();
     const query = category
-      ? "SELECT * FROM applications WHERE category = ? ORDER BY created_at DESC"
-      : "SELECT * FROM applications ORDER BY created_at DESC";
+      ? 'SELECT * FROM applications WHERE category = ? ORDER BY "order" ASC, created_at DESC'
+      : 'SELECT * FROM applications ORDER BY "order" ASC, created_at DESC';
     
     const result = category 
       ? await client.execute({ sql: query, args: [category] })
@@ -88,12 +89,22 @@ export const turso = {
     screenshotDarkUrl?: string;
     category?: string;
     access?: string;
+    order?: number;
     createdBy: string;
   }) {
     const client = getTursoClient();
+    
+    // If no order is provided, get the max order and add 1
+    let order = data.order;
+    if (order === undefined) {
+      const maxOrderResult = await client.execute('SELECT MAX("order") as max_order FROM applications');
+      const maxOrder = maxOrderResult.rows[0]?.max_order as number | null;
+      order = (maxOrder || 0) + 1;
+    }
+    
     const result = await client.execute({
-      sql: `INSERT INTO applications (name, description, primary_url, secondary_url, tags, screenshot_light_url, screenshot_dark_url, category, access, created_by, created_at, updated_at)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))`,
+      sql: `INSERT INTO applications (name, description, primary_url, secondary_url, tags, screenshot_light_url, screenshot_dark_url, category, access, "order", created_by, created_at, updated_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))`,
       args: [
         data.name,
         data.description || null,
@@ -104,6 +115,7 @@ export const turso = {
         data.screenshotDarkUrl || null,
         data.category || null,
         data.access || "user",
+        order,
         data.createdBy,
       ],
     });
@@ -120,6 +132,7 @@ export const turso = {
     screenshotDarkUrl: string;
     category: string;
     access: string;
+    order: number;
   }>) {
     const client = getTursoClient();
     const updates: string[] = [];
@@ -134,6 +147,7 @@ export const turso = {
     if (data.screenshotDarkUrl !== undefined) { updates.push("screenshot_dark_url = ?"); args.push(data.screenshotDarkUrl); }
     if (data.category !== undefined) { updates.push("category = ?"); args.push(data.category); }
     if (data.access !== undefined) { updates.push("access = ?"); args.push(data.access); }
+    if (data.order !== undefined) { updates.push('"order" = ?'); args.push(data.order); }
 
     updates.push("updated_at = datetime('now')");
     args.push(id);

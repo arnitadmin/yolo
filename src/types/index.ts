@@ -35,6 +35,7 @@ export interface Application {
   screenshotDarkUrl: string | null;
   category: string | null;
   access: string;
+  order: number;
   createdAt: Date;
   updatedAt: Date;
   createdBy: string;

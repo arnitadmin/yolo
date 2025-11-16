@@ -5,9 +5,26 @@ import {
   Plus, Pencil, Trash2, Plane, Rocket, Satellite, 
   Radio, Cpu, Wifi, Radar, CircuitBoard, Zap, 
   Sun, Battery, BatteryCharging, Fuel, Wind, Globe,
-  Shield, ShieldCheck, Lock, Server, Database, Cloud
+  Shield, ShieldCheck, Lock, Server, Database, Cloud, GripVertical
 } from "lucide-react";
 import * as LucideIcons from "lucide-react";
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 import { Header } from "@/components/header";
 import { AppDock } from "@/components/app-dock";
 import { Button } from "@/components/ui/button";
@@ -74,6 +91,79 @@ const ICON_OPTIONS = [
   { name: "Pencil", icon: Pencil },
 ];
 
+// Sortable Application Item Component
+function SortableApplicationItem({
+  app,
+  onEdit,
+  onDelete,
+}: {
+  app: Application;
+  onEdit: (app: Application) => void;
+  onDelete: (id: number) => void;
+}) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: app.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  };
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      className="flex items-center justify-between rounded-lg border border-border p-3 bg-background"
+    >
+      <div className="flex items-center gap-3 flex-1">
+        <button
+          className="cursor-grab active:cursor-grabbing touch-none"
+          {...attributes}
+          {...listeners}
+        >
+          <GripVertical className="h-5 w-5 text-muted-foreground" />
+        </button>
+        <div className="flex-1">
+          <div className="flex items-center gap-2">
+            <p className="font-medium">{app.name}</p>
+            {app.access === "admin" && (
+              <span className="inline-flex items-center rounded-md bg-red-50 dark:bg-red-900/20 px-2 py-1 text-xs font-medium text-red-700 dark:text-red-400 ring-1 ring-inset ring-red-600/20 dark:ring-red-400/20">
+                Admin Only
+              </span>
+            )}
+          </div>
+          <p className="text-sm text-muted-foreground">
+            {app.primaryUrl}
+          </p>
+        </div>
+      </div>
+      <div className="flex gap-2">
+        <Button
+          size="icon"
+          variant="ghost"
+          onClick={() => onEdit(app)}
+        >
+          <Pencil className="h-4 w-4" />
+        </Button>
+        <Button
+          size="icon"
+          variant="ghost"
+          onClick={() => onDelete(app.id)}
+        >
+          <Trash2 className="h-4 w-4" />
+        </Button>
+      </div>
+    </div>
+  );
+}
+
 export default function AdminPage() {
   const [applications, setApplications] = useState<Application[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -86,6 +176,14 @@ export default function AdminPage() {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [deleteAppId, setDeleteAppId] = useState<number | null>(null);
   const [deleteCatId, setDeleteCatId] = useState<number | null>(null);
+
+  // Drag and drop sensors
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
 
   // Form states
   const [appForm, setAppForm] = useState<ApplicationInput>({
@@ -327,6 +425,40 @@ export default function AdminPage() {
     setCatDialogOpen(true);
   }
 
+  async function handleDragEnd(event: DragEndEvent) {
+    const { active, over } = event;
+
+    if (!over || active.id === over.id) {
+      return;
+    }
+
+    const oldIndex = applications.findIndex((app) => app.id === active.id);
+    const newIndex = applications.findIndex((app) => app.id === over.id);
+
+    // Optimistically update the UI
+    const newApplications = arrayMove(applications, oldIndex, newIndex);
+    setApplications(newApplications);
+
+    // Send the new order to the server
+    try {
+      const applicationIds = newApplications.map((app) => app.id);
+      const res = await fetch("/api/applications/reorder", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ applicationIds }),
+      });
+
+      if (!res.ok) {
+        // If the request fails, revert the change
+        console.error("Failed to update order");
+        fetchData();
+      }
+    } catch (error) {
+      console.error("Error updating order:", error);
+      fetchData();
+    }
+  }
+
   return (
     <div className="min-h-screen bg-background">
       <Header />
@@ -547,44 +679,27 @@ export default function AdminPage() {
               ) : applications.length === 0 ? (
                 <p className="text-muted-foreground">No applications yet</p>
               ) : (
-                <div className="space-y-2">
-                  {applications.map((app) => (
-                    <div
-                      key={app.id}
-                      className="flex items-center justify-between rounded-lg border border-border p-3"
-                    >
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2">
-                          <p className="font-medium">{app.name}</p>
-                          {app.access === "admin" && (
-                            <span className="inline-flex items-center rounded-md bg-red-50 dark:bg-red-900/20 px-2 py-1 text-xs font-medium text-red-700 dark:text-red-400 ring-1 ring-inset ring-red-600/20 dark:ring-red-400/20">
-                              Admin Only
-                            </span>
-                          )}
-                        </div>
-                        <p className="text-sm text-muted-foreground">
-                          {app.primaryUrl}
-                        </p>
-                      </div>
-                      <div className="flex gap-2">
-                        <Button
-                          size="icon"
-                          variant="ghost"
-                          onClick={() => openAppDialog(app)}
-                        >
-                          <Pencil className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          size="icon"
-                          variant="ghost"
-                          onClick={() => setDeleteAppId(app.id)}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
+                <DndContext
+                  sensors={sensors}
+                  collisionDetection={closestCenter}
+                  onDragEnd={handleDragEnd}
+                >
+                  <SortableContext
+                    items={applications.map((app) => app.id)}
+                    strategy={verticalListSortingStrategy}
+                  >
+                    <div className="space-y-2">
+                      {applications.map((app) => (
+                        <SortableApplicationItem
+                          key={app.id}
+                          app={app}
+                          onEdit={openAppDialog}
+                          onDelete={setDeleteAppId}
+                        />
+                      ))}
                     </div>
-                  ))}
-                </div>
+                  </SortableContext>
+                </DndContext>
               )}
             </CardContent>
           </Card>

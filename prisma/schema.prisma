@@ -21,6 +21,7 @@ model Application {
   screenshotDarkUrl    String?  @map("screenshot_dark_url")
   category             String?
   access               String   @default("user") // "user" or "admin"
+  order                Int      @default(0)
   createdAt            DateTime @default(now()) @map("created_at")
   updatedAt            DateTime @updatedAt @map("updated_at")
   createdBy            String   @map("created_by") // Clerk user ID
@@ -28,6 +29,7 @@ model Application {
   @@index([name])
   @@index([category])
   @@index([access])
+  @@index([order])
   @@map("applications")
 }
 
