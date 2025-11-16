@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { turso } from "@/lib/turso";
 import { requireAdmin } from "@/lib/auth";
+import { logAdminAction } from "@/lib/audit";
 
 // POST update application order (admin only)
 export async function POST(request: NextRequest) {
   try {
-    await requireAdmin();
+    const userId = await requireAdmin(request);
 
     const body = await request.json();
     const { applicationIds } = body as { applicationIds: number[] };
@@ -21,6 +22,12 @@ export async function POST(request: NextRequest) {
     for (let i = 0; i < applicationIds.length; i++) {
       await turso.updateApplication(applicationIds[i], { order: i });
     }
+
+    // Log admin action
+    await logAdminAction(userId, "application_reorder", {
+      applicationCount: applicationIds.length,
+      applicationIds,
+    }, request);
 
     return NextResponse.json({ success: true });
   } catch (error) {

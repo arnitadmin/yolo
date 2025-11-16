@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { turso } from "@/lib/turso";
 import { requireAuth, requireAdmin } from "@/lib/auth";
 import { applicationSchema } from "@/types";
+import { logAdminAction } from "@/lib/audit";
 
 // GET all applications (optionally filtered by category)
 export async function GET(request: NextRequest) {
@@ -26,7 +27,7 @@ export async function GET(request: NextRequest) {
 // POST create new application (admin only)
 export async function POST(request: NextRequest) {
   try {
-    const userId = await requireAdmin();
+    const userId = await requireAdmin(request);
 
     const body = await request.json();
     const validatedData = applicationSchema.parse(body);
@@ -35,6 +36,13 @@ export async function POST(request: NextRequest) {
       ...validatedData,
       createdBy: userId,
     });
+
+    // Log admin action
+    await logAdminAction(userId, "application_create", {
+      applicationId,
+      name: validatedData.name,
+      category: validatedData.category,
+    }, request);
 
     // Fetch the created application to return it
     const application = await turso.getApplicationById(Number(applicationId));

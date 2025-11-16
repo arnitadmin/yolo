@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { turso } from "@/lib/turso";
 import { requireAdmin } from "@/lib/auth";
 import { applicationSchema } from "@/types";
+import { logAdminAction } from "@/lib/audit";
 
 // PUT update application (admin only)
 export async function PUT(
@@ -9,7 +10,7 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    await requireAdmin();
+    const userId = await requireAdmin(request);
 
     const { id } = await params;
     const body = await request.json();
@@ -17,6 +18,13 @@ export async function PUT(
 
     await turso.updateApplication(parseInt(id), validatedData);
     const application = await turso.getApplicationById(parseInt(id));
+
+    // Log admin action
+    await logAdminAction(userId, "application_update", {
+      applicationId: parseInt(id),
+      name: validatedData.name,
+      changes: Object.keys(validatedData),
+    }, request);
 
     return NextResponse.json(application);
   } catch (error) {
@@ -39,11 +47,20 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    await requireAdmin();
+    const userId = await requireAdmin(request);
 
     const { id } = await params;
 
+    // Get application details before deletion for audit log
+    const application = await turso.getApplicationById(parseInt(id));
+
     await turso.deleteApplication(parseInt(id));
+
+    // Log admin action
+    await logAdminAction(userId, "application_delete", {
+      applicationId: parseInt(id),
+      name: application?.name,
+    }, request);
 
     return NextResponse.json({ success: true });
   } catch (error) {

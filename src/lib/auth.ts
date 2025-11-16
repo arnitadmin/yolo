@@ -1,4 +1,5 @@
 import { auth, currentUser } from "@clerk/nextjs/server";
+import { logAdminAction } from "./audit";
 
 export type UserRole = "admin" | "user" | "guest";
 
@@ -14,18 +15,21 @@ export async function getUserRole(): Promise<UserRole> {
     return "guest";
   }
   
-  // Role is stored in publicMetadata
-  const role = user.publicMetadata?.role as UserRole | undefined;
+  // Role is stored in privateMetadata (server-only, not client-accessible)
+  const role = user.privateMetadata?.role as UserRole | undefined;
   
-  console.log("User publicMetadata:", user.publicMetadata);
-  console.log("Extracted role:", role);
+  if (process.env.NODE_ENV === 'development') {
+    console.log("Extracted role:", role);
+  }
   
   return role || "guest";
 }
 
 export async function isAdmin(): Promise<boolean> {
   const role = await getUserRole();
-  console.log("isAdmin check - role:", role, "is admin:", role === "admin");
+  if (process.env.NODE_ENV === 'development') {
+    console.log("isAdmin check - role:", role, "is admin:", role === "admin");
+  }
   return role === "admin";
 }
 
@@ -37,15 +41,20 @@ export async function requireAuth() {
   return userId;
 }
 
-export async function requireAdmin() {
+export async function requireAdmin(request?: Request) {
   const userId = await requireAuth();
   const admin = await isAdmin();
   
-  console.log("requireAdmin - userId:", userId, "admin:", admin);
+  if (process.env.NODE_ENV === 'development') {
+    console.log("requireAdmin - admin:", admin);
+  }
   
   if (!admin) {
     throw new Error("Forbidden: Admin access required");
   }
+  
+  // Log admin access for audit trail
+  await logAdminAction(userId, "admin_access", {}, request);
   
   return userId;
 }

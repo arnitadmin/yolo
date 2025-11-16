@@ -40,7 +40,9 @@ export default function Home() {
 
         if (roleRes.ok) {
           const roleData = await roleRes.json();
-          console.log("Role data from API:", roleData);
+          if (process.env.NODE_ENV === 'development') {
+            console.log("Role data from API:", roleData);
+          }
           setIsAdmin(roleData.isAdmin);
         } else {
           console.error("Failed to fetch role:", roleRes.status);

@@ -60,20 +60,19 @@ export function AppCard({ application }: AppCardProps) {
           }}
         >
           <GlowEffect
-            colors={["#0894FF", "#C959DD", "#FF2E54", "#FF9004"]}
-            mode="colorShift"
-            blur="medium"
-            duration={4}
+            mode="static"
+            blur="small"
+            theme={theme === "system" ? "dark" : theme}
           />
         </motion.div>
 
         <MorphingDialogTrigger
           style={{
-            borderRadius: "12px",
+            borderRadius: "0.75rem",
           }}
           className="flex w-full flex-col overflow-hidden"
         >
-          <Card className="relative flex h-full flex-col overflow-hidden border-border/40 bg-card transition-all hover:border-border p-3">
+          <Card className="relative flex h-full flex-col overflow-hidden border-border/40 bg-card transition-all hover:border-border p-3 shadow-none">
             <div className="relative w-full overflow-hidden rounded-md" style={{ aspectRatio: "16/9" }}>
               {screenshotUrl ? (
                 <Image

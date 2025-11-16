@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { turso } from "@/lib/turso";
 import { requireAuth, requireAdmin } from "@/lib/auth";
 import { categorySchema } from "@/types";
+import { logAdminAction } from "@/lib/audit";
 
 // GET all categories
 export async function GET() {
@@ -23,13 +24,19 @@ export async function GET() {
 // POST create new category (admin only)
 export async function POST(request: NextRequest) {
   try {
-    await requireAdmin();
+    const userId = await requireAdmin(request);
 
     const body = await request.json();
     const validatedData = categorySchema.parse(body);
 
     const categoryId = await turso.createCategory(validatedData);
     const category = await turso.getCategoryById(Number(categoryId));
+
+    // Log admin action
+    await logAdminAction(userId, "category_create", {
+      categoryId,
+      name: validatedData.name,
+    }, request);
 
     return NextResponse.json(category, { status: 201 });
   } catch (error) {

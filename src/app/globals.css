@@ -76,7 +76,19 @@
   --sidebar-border: oklch(0.91 0 0);
   --sidebar-ring: oklch(0.71 0 0);
 
-  --radius: 0.625rem;
+  --radius: 1rem;
+  
+  /* Glow Effect Colors - Light Mode
+   * These colors are automatically darkened (10% brightness) in light mode
+   * Change these hex values to customize the glow effect colors
+   */
+   --glow-1: #adb9c8; /* Very soft blue-grey */
+   --glow-2: #c1b1c6; /* Light dusty lavender */
+   --glow-3: #cdb3b4; /* Faint warm rose */
+   --glow-4: #d8b084; /* Soft warm beige-gold */
+   --glow-5: #acbea9; /* Pale sage-grey */
+   
+   
   
   --shadow-2xs: 0 1px 3px 0px oklch(0.00 0 0 / 0.05);
   --shadow-xs: 0 1px 3px 0px oklch(0.00 0 0 / 0.05);
@@ -120,6 +132,19 @@
   --sidebar-accent-foreground: oklch(0.86 0.05 85.12);
   --sidebar-border: oklch(0.33 0.02 60.70);
   --sidebar-ring: oklch(0.64 0.05 114.58);
+  
+  /* Glow Effect Colors - Dark Mode
+   * These colors are automatically lightened (70% brighter) in dark mode
+   * Change these hex values to customize the glow effect colors
+   */
+   --glow-1: #3c5576; /* Muted blue-grey */
+   --glow-2: #614c6d; /* Dusty purple */
+   --glow-3: #754047; /* Muted rose/red */
+   --glow-4: #7b593e; /* Warm amber-brown */
+   --glow-5: #3f5d42; /* Forest green-grey */
+   
+   
+   
   
   --shadow-2xs: 0 1px 3px 0px oklch(0.00 0 0 / 0.05);
   --shadow-xs: 0 1px 3px 0px oklch(0.00 0 0 / 0.05);

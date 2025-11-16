@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { turso } from "@/lib/turso";
 import { requireAdmin } from "@/lib/auth";
 import { categorySchema } from "@/types";
+import { logAdminAction } from "@/lib/audit";
 
 // PUT update category (admin only)
 export async function PUT(
@@ -9,7 +10,7 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    await requireAdmin();
+    const userId = await requireAdmin(request);
 
     const { id } = await params;
     const body = await request.json();
@@ -17,6 +18,13 @@ export async function PUT(
 
     await turso.updateCategory(parseInt(id), validatedData);
     const category = await turso.getCategoryById(parseInt(id));
+
+    // Log admin action
+    await logAdminAction(userId, "category_update", {
+      categoryId: parseInt(id),
+      name: validatedData.name,
+      changes: Object.keys(validatedData),
+    }, request);
 
     return NextResponse.json(category);
   } catch (error) {
@@ -39,11 +47,20 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    await requireAdmin();
+    const userId = await requireAdmin(request);
 
     const { id } = await params;
 
+    // Get category details before deletion for audit log
+    const category = await turso.getCategoryById(parseInt(id));
+
     await turso.deleteCategory(parseInt(id));
+
+    // Log admin action
+    await logAdminAction(userId, "category_delete", {
+      categoryId: parseInt(id),
+      name: category?.name,
+    }, request);
 
     return NextResponse.json({ success: true });
   } catch (error) {
