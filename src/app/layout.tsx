@@ -17,6 +17,14 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "YOLO - Organization App Directory",
   description: "A single source of truth for all your organization's apps",
+  icons: {
+    icon: [
+      {
+        url: "/favicon.png",
+        type: "image/png",
+      },
+    ],
+  },
 };
 
 export default function RootLayout({
