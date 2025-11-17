@@ -16,7 +16,6 @@ export type AdminAction =
   | "admin_access"
   | "settings_change";
 
-  
 export interface AuditLogEntry {
   timestamp: string;
   userId: string;
