@@ -42,3 +42,14 @@ model Category {
 
   @@map("categories")
 }
+
+model Content {
+  id        Int      @id @default(autoincrement())
+  slug      String   @unique // e.g., "onboarding"
+  title     String
+  markdown  String   // The markdown content
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("contents")
+}

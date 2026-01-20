@@ -50,3 +50,5 @@ next-env.d.ts
 
 
 prd.MD
+# clerk configuration (can include secrets)
+/.clerk/
