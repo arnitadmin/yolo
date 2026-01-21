@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/auth";
 import { logAdminAction } from "@/lib/audit";
-import { db } from "@/lib/db";
+import { turso } from "@/lib/turso";
 
 export async function GET() {
   try {
-    const contents = await db.content.findMany();
+    const contents = await turso.getAllContent();
     return NextResponse.json(contents);
   } catch (error) {
     console.error("Error fetching contents:", error);
@@ -30,11 +30,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const content = await db.content.upsert({
-      where: { slug },
-      update: { title, markdown },
-      create: { slug, title, markdown },
-    });
+    const content = await turso.upsertContent({ slug, title, markdown });
 
     // Log admin action
     await logAdminAction(

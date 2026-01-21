@@ -50,3 +50,12 @@ export interface Category {
   updatedAt: Date;
 }
 
+// Content type from database
+export interface Content {
+  id: number;
+  slug: string;
+  title: string;
+  markdown: string;
+  createdAt: Date;
+  updatedAt: Date;
+}

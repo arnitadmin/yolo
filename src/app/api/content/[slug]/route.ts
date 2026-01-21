@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { db } from "@/lib/db";
+import { turso } from "@/lib/turso";
 
 export async function GET(
   request: NextRequest,
@@ -8,9 +8,7 @@ export async function GET(
   try {
     const { slug } = await params;
 
-    const content = await db.content.findUnique({
-      where: { slug },
-    });
+    const content = await turso.getContentBySlug(slug);
 
     if (!content) {
       return NextResponse.json(

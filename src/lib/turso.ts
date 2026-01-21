@@ -1,5 +1,5 @@
 import { createClient, type Client } from "@libsql/client";
-import { Application, Category } from "@/types";
+import { Application, Category, Content } from "@/types";
 
 let tursoClient: Client | null = null;
 
@@ -49,6 +49,18 @@ function mapRowToCategory(row: any): Category {
     id: row.id as number,
     name: row.name as string,
     icon: row.icon as string | null,
+    createdAt: new Date(row.created_at as string),
+    updatedAt: new Date(row.updated_at as string),
+  };
+}
+
+// Helper function to map database row to Content type
+function mapRowToContent(row: any): Content {
+  return {
+    id: row.id as number,
+    slug: row.slug as string,
+    title: row.title as string,
+    markdown: row.markdown as string,
     createdAt: new Date(row.created_at as string),
     updatedAt: new Date(row.updated_at as string),
   };
@@ -215,6 +227,53 @@ export const turso = {
       sql: "DELETE FROM categories WHERE id = ?",
       args: [id],
     });
+  },
+
+  // Content
+  async getContentBySlug(slug: string): Promise<Content | null> {
+    const client = getTursoClient();
+    const result = await client.execute({
+      sql: "SELECT * FROM contents WHERE slug = ?",
+      args: [slug],
+    });
+    return result.rows[0] ? mapRowToContent(result.rows[0]) : null;
+  },
+
+  async getAllContent(): Promise<Content[]> {
+    const client = getTursoClient();
+    const result = await client.execute("SELECT * FROM contents ORDER BY created_at DESC");
+    return result.rows.map(mapRowToContent);
+  },
+
+  async upsertContent(data: { slug: string; title: string; markdown: string }): Promise<Content> {
+    const client = getTursoClient();
+    
+    // Check if content exists
+    const existing = await client.execute({
+      sql: "SELECT id FROM contents WHERE slug = ?",
+      args: [data.slug],
+    });
+
+    if (existing.rows.length > 0) {
+      // Update
+      await client.execute({
+        sql: "UPDATE contents SET title = ?, markdown = ?, updated_at = datetime('now') WHERE slug = ?",
+        args: [data.title, data.markdown, data.slug],
+      });
+    } else {
+      // Insert
+      await client.execute({
+        sql: "INSERT INTO contents (slug, title, markdown, created_at, updated_at) VALUES (?, ?, ?, datetime('now'), datetime('now'))",
+        args: [data.slug, data.title, data.markdown],
+      });
+    }
+
+    // Return the upserted content
+    const result = await client.execute({
+      sql: "SELECT * FROM contents WHERE slug = ?",
+      args: [data.slug],
+    });
+    return mapRowToContent(result.rows[0]);
   },
 };
 
