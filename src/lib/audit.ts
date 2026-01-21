@@ -13,6 +13,9 @@ export type AdminAction =
   | "category_create"
   | "category_update"
   | "category_delete"
+  | "content_create"
+  | "content_update"
+  | "content_delete"
   | "admin_access"
   | "settings_change";
 

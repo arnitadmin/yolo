@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { auth } from "@clerk/nextjs/server";
+import { requireAdmin } from "@/lib/auth";
+import { logAdminAction } from "@/lib/audit";
 import { db } from "@/lib/db";
 
 export async function GET() {
@@ -17,15 +18,8 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
-    const { userId } = await auth();
-
-    // TODO: Add admin check - for now, allow any authenticated user
-    if (!userId) {
-      return NextResponse.json(
-        { error: "Unauthorized" },
-        { status: 401 }
-      );
-    }
+    // Require admin authentication
+    const userId = await requireAdmin(request);
 
     const { slug, title, markdown } = await request.json();
 
@@ -42,9 +36,32 @@ export async function POST(request: NextRequest) {
       create: { slug, title, markdown },
     });
 
+    // Log admin action
+    await logAdminAction(
+      userId,
+      "content_update",
+      { slug, title },
+      request
+    );
+
     return NextResponse.json(content, { status: 201 });
   } catch (error) {
     console.error("Error creating/updating content:", error);
+    
+    if (error instanceof Error && error.message.includes("Forbidden")) {
+      return NextResponse.json(
+        { error: "Admin access required" },
+        { status: 403 }
+      );
+    }
+    
+    if (error instanceof Error && error.message.includes("Unauthorized")) {
+      return NextResponse.json(
+        { error: "Authentication required" },
+        { status: 401 }
+      );
+    }
+    
     return NextResponse.json(
       { error: "Failed to create/update content" },
       { status: 500 }
