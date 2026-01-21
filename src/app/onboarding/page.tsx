@@ -138,6 +138,38 @@ export default function OnboardingPage() {
                     </pre>
                   );
                 },
+                table: ({ children }) => (
+                  <div className="my-6 overflow-x-auto">
+                    <table className="w-full border-collapse border border-border rounded-lg">
+                      {children}
+                    </table>
+                  </div>
+                ),
+                thead: ({ children }) => (
+                  <thead className="bg-muted/50">
+                    {children}
+                  </thead>
+                ),
+                tbody: ({ children }) => (
+                  <tbody className="divide-y divide-border">
+                    {children}
+                  </tbody>
+                ),
+                tr: ({ children }) => (
+                  <tr className="hover:bg-muted/30 transition-colors">
+                    {children}
+                  </tr>
+                ),
+                th: ({ children }) => (
+                  <th className="px-4 py-3 text-left text-sm font-semibold text-foreground border-b border-border">
+                    {children}
+                  </th>
+                ),
+                td: ({ children }) => (
+                  <td className="px-4 py-3 text-sm text-foreground/90">
+                    {children}
+                  </td>
+                ),
               }}
             >
               {markdownContent}
