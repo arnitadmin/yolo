@@ -8,6 +8,7 @@ import remarkGfm from "remark-gfm";
 import { Header } from "@/components/header";
 import { AppDock } from "@/components/app-dock";
 import { LoadRipple } from "@/components/ui/load-ripple";
+import { Mermaid } from "@/components/mermaid";
 import { Category } from "@/types";
 
 export default function OnboardingPage() {
@@ -109,11 +110,34 @@ export default function OnboardingPage() {
                     {children}
                   </a>
                 ),
-                code: ({ children }) => (
-                  <code className="bg-muted px-1.5 py-0.5 rounded text-sm font-mono">
-                    {children}
-                  </code>
-                ),
+                code: ({ className, children }) => {
+                  const match = /language-(\w+)/.exec(className || "");
+                  const lang = match ? match[1] : "";
+                  
+                  // Handle mermaid code blocks
+                  if (lang === "mermaid") {
+                    return <Mermaid chart={String(children).replace(/\n$/, "")} />;
+                  }
+                  
+                  // Inline code
+                  return (
+                    <code className="bg-muted px-1.5 py-0.5 rounded text-sm font-mono">
+                      {children}
+                    </code>
+                  );
+                },
+                pre: ({ children }) => {
+                  // Check if the child is a mermaid code block - if so, render without pre wrapper
+                  const child = children as React.ReactElement;
+                  if (child?.props?.className?.includes("language-mermaid")) {
+                    return <>{children}</>;
+                  }
+                  return (
+                    <pre className="bg-muted p-4 rounded-lg overflow-x-auto my-4">
+                      {children}
+                    </pre>
+                  );
+                },
               }}
             >
               {markdownContent}
