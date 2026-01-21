@@ -10,6 +10,13 @@ function createPrismaClient() {
   const dbUrl = process.env.DATABASE_URL || process.env.TURSO_DATABASE_URL;
   const authToken = process.env.DATABASE_AUTH_TOKEN || process.env.TURSO_AUTH_TOKEN;
   
+  console.log("[DB] DATABASE_URL:", process.env.DATABASE_URL ? "SET" : "NOT SET");
+  console.log("[DB] TURSO_DATABASE_URL:", process.env.TURSO_DATABASE_URL ? "SET" : "NOT SET");
+  console.log("[DB] DATABASE_AUTH_TOKEN:", process.env.DATABASE_AUTH_TOKEN ? "SET" : "NOT SET");
+  console.log("[DB] TURSO_AUTH_TOKEN:", process.env.TURSO_AUTH_TOKEN ? "SET" : "NOT SET");
+  console.log("[DB] Final dbUrl:", dbUrl ? "SET" : "NOT SET");
+  console.log("[DB] Final authToken:", authToken ? "SET" : "NOT SET");
+  
   // For Turso with libSQL, use the adapter
   if (dbUrl?.startsWith("libsql://") && authToken) {
     const libsql: Client = createClient({
