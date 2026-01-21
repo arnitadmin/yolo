@@ -9,8 +9,7 @@
     "lint": "eslint",
     "postinstall": "prisma generate || echo 'Prisma generation skipped'",
     "migrate:access": "tsx scripts/migrate-add-access-field.ts",
-    "migrate:order": "tsx scripts/migrate-add-order-field.ts",
-    "seed:onboarding": "tsx scripts/seed-onboarding.ts"
+    "migrate:order": "tsx scripts/migrate-add-order-field.ts"
   },
   "dependencies": {
     "@clerk/nextjs": "^6.35.1",
