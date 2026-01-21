@@ -128,7 +128,7 @@ export default function OnboardingPage() {
                 },
                 pre: ({ children }) => {
                   // Check if the child is a mermaid code block - if so, render without pre wrapper
-                  const child = children as React.ReactElement;
+                  const child = children as React.ReactElement<{ className?: string }>;
                   if (child?.props?.className?.includes("language-mermaid")) {
                     return <>{children}</>;
                   }
