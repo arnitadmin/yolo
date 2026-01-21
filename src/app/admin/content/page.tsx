@@ -1,12 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Header } from "@/components/header";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { LoadRipple } from "@/components/ui/load-ripple";
 
 export default function AdminContentPage() {
   const router = useRouter();
@@ -14,7 +15,27 @@ export default function AdminContentPage() {
   const [title, setTitle] = useState("Welcome to YOLO");
   const [markdown, setMarkdown] = useState("");
   const [loading, setLoading] = useState(false);
+  const [fetching, setFetching] = useState(true);
   const [message, setMessage] = useState("");
+
+  // Load existing content on mount
+  useEffect(() => {
+    async function fetchContent() {
+      try {
+        const response = await fetch(`/api/content/${slug}`);
+        if (response.ok) {
+          const data = await response.json();
+          setTitle(data.title || "Welcome to YOLO");
+          setMarkdown(data.markdown || "");
+        }
+      } catch (error) {
+        console.error("Error fetching content:", error);
+      } finally {
+        setFetching(false);
+      }
+    }
+    fetchContent();
+  }, [slug]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -50,6 +71,11 @@ export default function AdminContentPage() {
         <div className="max-w-4xl mx-auto">
           <h1 className="text-3xl font-bold mb-8">Manage Content</h1>
 
+          {fetching ? (
+            <div className="flex min-h-[40vh] items-center justify-center">
+              <LoadRipple />
+            </div>
+          ) : (
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
               <Label htmlFor="slug">Slug (unique identifier)</Label>
@@ -110,6 +136,7 @@ export default function AdminContentPage() {
               </Button>
             </div>
           </form>
+          )}
         </div>
       </main>
     </div>
