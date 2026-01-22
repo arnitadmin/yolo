@@ -20,18 +20,24 @@ export default function OnboardingPage() {
   useEffect(() => {
     async function fetchData() {
       try {
+        // Fetch categories and role for dock
+        const [catsRes, roleRes] = await Promise.all([
+          fetch("/api/categories"),
+          fetch("/api/user/role"),
+        ]);
+
+        // Redirect to sign-in if user is not authenticated
+        if (roleRes.status === 401) {
+          window.location.href = "/sign-in";
+          return;
+        }
+
         // Fetch markdown content from API
         const contentResponse = await fetch("/api/content/onboarding");
         if (contentResponse.ok) {
           const contentData = await contentResponse.json();
           setMarkdownContent(contentData.markdown);
         }
-
-        // Fetch categories and role for dock
-        const [catsRes, roleRes] = await Promise.all([
-          fetch("/api/categories"),
-          fetch("/api/user/role"),
-        ]);
 
         if (catsRes.ok) {
           const catsData = await catsRes.json();
