@@ -26,8 +26,8 @@ export default function OnboardingPage() {
           fetch("/api/user/role"),
         ]);
 
-        // Redirect to sign-in if user is not authenticated
-        if (roleRes.status === 401) {
+        // Redirect to sign-in if user is not authenticated (401) or API not found (404)
+        if (!roleRes.ok) {
           window.location.href = "/sign-in";
           return;
         }
